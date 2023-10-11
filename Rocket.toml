@@ -1,0 +1,2 @@
+[default.databases.test]
+url = "postgres://service:password@localhost/test?schema=bouncer"

@@ -1,2 +1,2 @@
 # bouncer
-User Management and Authentication service built in Java
+User Management and Authentication service built in Rust
