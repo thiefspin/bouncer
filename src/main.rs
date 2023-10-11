@@ -1,27 +1,30 @@
 #[macro_use]
 extern crate rocket;
 
-use rocket::{Build, Rocket, Route};
+use rocket::{Build, fairing, Rocket, Route};
+use rocket::fairing::AdHoc;
 use rocket_db_pools::{Database, sqlx};
-use rocket_okapi::{mount_endpoints_and_merged_docs, openapi, openapi_get_routes_spec, rapidoc::*, swagger_ui::*};
+use rocket_okapi::{mount_endpoints_and_merged_docs, openapi_get_routes_spec, rapidoc::*, swagger_ui::*};
 use rocket_okapi::okapi::openapi3::OpenApi;
-use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::settings::{OpenApiSettings, UrlObject};
+
+use controllers::{health_controller, user_controller};
 
 #[path = "./users/mod.rs"]
 mod users;
 #[path = "application/mod.rs"]
 mod app;
 
-#[path = "./controllers/user_controller.rs"]
-mod user_controller;
-
 #[cfg(test)]
+#[path = "tests/controller_tests.rs"]
 mod tests;
+
+#[path = "controllers/mod.rs"]
+mod controllers;
 
 #[derive(Database)]
 #[database("test")]
-pub struct Users(sqlx::PgPool);
+pub struct Db(sqlx::PgPool);
 
 fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
     return openapi_get_routes_spec![
@@ -30,16 +33,8 @@ fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
     ];
 }
 
-#[openapi(tag = "Health")]
-#[get("/health")]
-fn health() -> &'static str {
-    "Hello, world!"
-}
-
 #[rocket::main]
 async fn main() {
-    // let db_pool = app::database::init().await;
-    // sqlx::migrate!().run(&db_pool).await.expect("Failed to run migrations");
     let launch_result = create_server().launch().await;
     match launch_result {
         Ok(_) => println!("Rocket shut down gracefully."),
@@ -47,9 +42,27 @@ async fn main() {
     };
 }
 
+async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result  {
+    if let Some(db) = Db::fetch(&rocket) {
+         match sqlx::migrate!().run(&db.0).await {
+             Ok(_) => {
+                 println!("Migrations ran successfully");
+                 Ok(rocket)
+             }
+             Err(_) => {
+                 Err(rocket)
+             }
+         }
+    } else {
+        Err(rocket)
+    }
+}
+
 fn create_server() -> Rocket<Build> {
     let mut build_rocket = rocket::build()
-        .attach(Users::init())
+        .attach(Db::init())
+        .register("/", catchers![app::catchers::internal_error])
+        .attach(AdHoc::try_on_ignite("DB Migrations", run_migrations))
         .mount(
             "/swagger-ui/",
             make_swagger_ui(&SwaggerUIConfig {
@@ -75,7 +88,7 @@ fn create_server() -> Rocket<Build> {
     let settings = OpenApiSettings::default();
     mount_endpoints_and_merged_docs! {
     build_rocket, "/api".to_owned(), settings,
-        "/" => openapi_get_routes_spec![health],
+        "/" => openapi_get_routes_spec![health_controller::health],
         "/users" => get_user_controller_routes(),
     }
     build_rocket

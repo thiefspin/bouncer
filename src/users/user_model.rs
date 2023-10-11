@@ -14,7 +14,7 @@ pub struct User {
     pub name: String,
     pub surname: String,
     pub phone: String,
-    pub password: String
-    // pub created: NaiveDateTime,
-    // pub last_login: Option<NaiveDateTime>
+    pub password: String,
+    pub created: NaiveDateTime,
+    pub last_login: Option<NaiveDateTime>
 }

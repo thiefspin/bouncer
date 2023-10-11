@@ -11,7 +11,7 @@ chrono = { version = "0.4.28", features = ["serde"] }
 schemars = { version = "0.8", features = ["chrono"] }
 rocket_okapi = { version = "0.8.0-rc.3", features = ["swagger", "rapidoc", "rocket_db_pools"] }
 #sqlx = { version = "0.7", features = ["runtime-async-std-native-tls", "postgres", "chrono", "uuid", "migrate", "time"] }
-sqlx = { version = "0.6", features = ["postgres", "chrono", "uuid", "migrate", "time"] }
+sqlx = { version = "0.6", features = ["postgres", "chrono", "uuid", "migrate", "time", "offline"] }
 dotenv = "0.15.0"
 
 [dependencies.rocket]

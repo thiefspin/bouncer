@@ -1,2 +1,6 @@
 [default.databases.test]
-url = "postgres://service:password@localhost/test?schema=bouncer"
+url = "postgres://service:password@localhost/test"
+min_connections = 4
+max_connections = 10
+connect_timeout = 5
+idle_timeout = 120
