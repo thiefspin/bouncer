@@ -12,6 +12,10 @@ pub async fn get(id: i64, db: Connection<Db>) -> Option<User> {
     return user_dao::get(id, db).await;
 }
 
+pub async fn get_by_email(email: String, db: Connection<Db>) -> Option<User> {
+    return user_dao::get_by_email(email, db).await;
+}
+
 // fn sast_date_time() -> DateTime<FixedOffset> {
 //     let utc: DateTime<Utc> = Utc::now();
 //     let offset = FixedOffset::east_opt(2 * 3600).unwrap();

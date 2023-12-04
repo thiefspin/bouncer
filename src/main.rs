@@ -8,10 +8,14 @@ use rocket_okapi::{mount_endpoints_and_merged_docs, openapi_get_routes_spec, rap
 use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::settings::{OpenApiSettings, UrlObject};
 
-use controllers::{health_controller, user_controller};
+use controllers::{health_controller, user_controller, auth_controller};
 
 #[path = "./users/mod.rs"]
 mod users;
+
+#[path = "./auth/mod.rs"]
+mod auth;
+
 #[path = "application/mod.rs"]
 mod app;
 
@@ -30,6 +34,12 @@ fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
     return openapi_get_routes_spec![
         user_controller::list_users,
         user_controller::get_user
+    ];
+}
+
+fn get_auth_controller_routes() -> (Vec<Route>, OpenApi) {
+    return openapi_get_routes_spec![
+        auth_controller::login
     ];
 }
 
@@ -61,7 +71,7 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result  {
 fn create_server() -> Rocket<Build> {
     let mut build_rocket = rocket::build()
         .attach(Db::init())
-        .register("/", catchers![app::catchers::internal_error])
+        .register("/", catchers![app::catchers::internal_error, app::catchers::unauthorized])
         .attach(AdHoc::try_on_ignite("DB Migrations", run_migrations))
         .mount(
             "/swagger-ui/",
@@ -90,6 +100,7 @@ fn create_server() -> Rocket<Build> {
     build_rocket, "/api".to_owned(), settings,
         "/" => openapi_get_routes_spec![health_controller::health],
         "/users" => get_user_controller_routes(),
+        "/auth" => get_auth_controller_routes()
     }
     build_rocket
 }

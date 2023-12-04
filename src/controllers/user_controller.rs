@@ -2,6 +2,7 @@ use rocket::futures::FutureExt;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use rocket_okapi::openapi;
+use crate::auth::auth_service::UserClaim;
 
 use crate::Db;
 use crate::users::user_model::User;
@@ -12,7 +13,8 @@ mod users;
 
 #[openapi(tag = "Users")]
 #[get("/")]
-pub async fn list_users(db: Connection<Db>) -> Json<Vec<User>> {
+pub async fn list_users(db: Connection<Db>, user: UserClaim) -> Json<Vec<User>> {
+    println!("{}", user.id);
     Json(user_service::list_users(db).await)
 }
 

@@ -29,6 +29,7 @@ RUN --mount=type=bind,source=src,target=src \
 set -e
 cargo build --locked --release
 cp ./target/release/$APP_NAME /bin/server
+cp ./Rocket.toml /bin/
 EOF
 
 ################################################################################

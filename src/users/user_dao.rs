@@ -19,3 +19,11 @@ pub async fn get(id: i64, mut db: Connection<Db>) -> Option<User> {
     ).fetch_optional(&mut *db).await;
     return query_result.unwrap();
 }
+
+pub async fn get_by_email(email: String, mut db: Connection<Db>) -> Option<User> {
+    let query_result = query_as!(
+        User,
+        "SELECT * FROM bouncer.users WHERE email = $1", email
+    ).fetch_optional(&mut *db).await;
+    return query_result.unwrap();
+}
