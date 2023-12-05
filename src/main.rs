@@ -25,6 +25,7 @@ mod tests;
 
 #[path = "controllers/mod.rs"]
 mod controllers;
+mod utils;
 
 #[derive(Database)]
 #[database("test")]
@@ -33,7 +34,8 @@ pub struct Db(sqlx::PgPool);
 fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
     return openapi_get_routes_spec![
         user_controller::list_users,
-        user_controller::get_user
+        user_controller::get_user,
+        user_controller::create
     ];
 }
 

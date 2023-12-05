@@ -2,12 +2,11 @@ use rocket::Request;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::serde::json::Json;
 use rocket_okapi::JsonSchema;
-use sqlx::FromRow;
 
 #[derive(Clone, Deserialize, Serialize, JsonSchema, Debug)]
 pub struct ApiError {
-    status: i16,
-    message: String,
+    pub status: i16,
+    pub message: String,
 }
 
 #[catch(500)]

@@ -1,8 +1,8 @@
 use rocket_db_pools::Connection;
 use rocket_db_pools::sqlx::*;
 
-use crate::Db;
-use crate::users::user_model::User;
+use crate::{Db, utils};
+use crate::users::user_model::{User, UserCreateRequest};
 
 pub async fn list(mut db: Connection<Db>) -> Vec<User> {
     let query_result = query_as!(
@@ -26,4 +26,16 @@ pub async fn get_by_email(email: String, mut db: Connection<Db>) -> Option<User>
         "SELECT * FROM bouncer.users WHERE email = $1", email
     ).fetch_optional(&mut *db).await;
     return query_result.unwrap();
+}
+
+pub async fn create(user: &UserCreateRequest, mut db: Connection<Db>) -> Option<User> {
+    let query_result = query_as!(
+        User,
+        "INSERT INTO bouncer.users (email, name, surname, phone, password, created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        user.email, user.name, user.surname, user.phone, user.password, utils::date_time::sast_date_time().naive_utc()
+    ).fetch_optional(&mut *db).await;
+    return match query_result {
+        Ok(result) => result,
+        Err(_) => None
+    }
 }

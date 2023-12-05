@@ -18,3 +18,14 @@ pub struct User {
     pub created: NaiveDateTime,
     pub last_login: Option<NaiveDateTime>
 }
+
+#[derive(Clone, Deserialize, Serialize, JsonSchema, Debug)]
+#[allow(non_snake_case)]
+#[serde(crate = "rocket::serde")]
+pub struct UserCreateRequest {
+    pub email: String,
+    pub name: String,
+    pub surname: String,
+    pub phone: String,
+    pub password: String
+}

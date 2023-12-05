@@ -6,11 +6,12 @@ use crate::auth::login_response::LoginResponse;
 use crate::Db;
 use crate::users::user_service;
 use rocket_jwt::jwt;
+use crate::users::user_model::User;
 
 static SECRET_KEY: &str = "very_secret_key";
 #[jwt(SECRET_KEY, exp = 100)]
 pub struct UserClaim {
-    pub id: String,
+    pub user: User
 }
 
 pub async fn login(db: Connection<Db>, login_form: LoginForm) -> Result<LoginResponse, LoginError> {
@@ -18,7 +19,7 @@ pub async fn login(db: Connection<Db>, login_form: LoginForm) -> Result<LoginRes
         Some(user) => {
             if (login_form.password == user.password) {
                 let response = LoginResponse {
-                    token: create_token()
+                    token: create_token(user)
                 };
                 Ok(response)
             } else {
@@ -37,9 +38,9 @@ pub async fn login(db: Connection<Db>, login_form: LoginForm) -> Result<LoginRes
     }
 }
 
-fn create_token() -> String {
+fn create_token(user: User) -> String {
     let user_claim = UserClaim {
-        id: format!("hello_rocket_jwt"),
+        user
     };
     let token = UserClaim::sign(user_claim);
     println!("{:#?}", UserClaim::decode(token.clone()));
