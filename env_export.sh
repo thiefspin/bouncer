@@ -1,0 +1,1 @@
+export ROCKET_DATABASES={test={url="postgres://service:password@localhost/test"}}

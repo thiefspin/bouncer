@@ -7,11 +7,18 @@
 ################################################################################
 # Create a stage for building the application.
 
-ARG RUST_VERSION=1.71.0
+ARG RUST_VERSION=1.73.0
 ARG APP_NAME=bouncer
 FROM rust:${RUST_VERSION}-slim-bullseye AS build
 ARG APP_NAME
 WORKDIR /app
+
+RUN apt-get update
+RUN apt-get install pkg-config -y
+RUN apt-get install libssh-dev -y
+#RUN echo "Running sqlx prepare"
+#RUN cargo sqlx prepare
+#RUN echo "Finished sqlx prepare"
 
 # Build the application.
 # Leverage a cache mount to /usr/local/cargo/registry/
@@ -22,12 +29,19 @@ WORKDIR /app
 # output directory before the cache mounted /app/target is unmounted.
 RUN --mount=type=bind,source=src,target=src \
     --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
+    --mount=type=bind,source=Rocket.toml,target=Rocket.toml \
     --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
+    --mount=type=bind,source=sqlx-data.json,target=sqlx-data.json \
+    --mount=type=bind,source=migrations,target=migrations \
     --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
     <<EOF
 set -e
+cargo install sqlx-cli --version 0.6.3
+export SQLX_OFFLINE=true
+echo "Starting cargo build"
 cargo build --locked --release
+echo "Finished cargo build"
 cp ./target/release/$APP_NAME /bin/server
 cp ./Rocket.toml /bin/
 EOF

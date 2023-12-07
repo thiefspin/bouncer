@@ -1,0 +1,1 @@
+docker run --add-host=database:127.0.0.1 -e ROCKET_DATABASES='{test={url="postgres://service:password@host.docker.internal:5432/test"}}' -p 8000:8000 rust-rocket-test:latest

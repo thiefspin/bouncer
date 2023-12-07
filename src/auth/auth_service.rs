@@ -9,15 +9,16 @@ use rocket_jwt::jwt;
 use crate::users::user_model::User;
 
 static SECRET_KEY: &str = "very_secret_key";
+
 #[jwt(SECRET_KEY, exp = 100)]
 pub struct UserClaim {
-    pub user: User
+    pub user: User,
 }
 
 pub async fn login(db: Connection<Db>, login_form: LoginForm) -> Result<LoginResponse, LoginError> {
     match user_service::get_by_email(login_form.email, db).await {
         Some(user) => {
-            if (login_form.password == user.password) {
+            if login_form.password == user.password {
                 let response = LoginResponse {
                     token: create_token(user)
                 };
@@ -39,9 +40,7 @@ pub async fn login(db: Connection<Db>, login_form: LoginForm) -> Result<LoginRes
 }
 
 fn create_token(user: User) -> String {
-    let user_claim = UserClaim {
-        user
-    };
+    let user_claim = UserClaim { user };
     let token = UserClaim::sign(user_claim);
     println!("{:#?}", UserClaim::decode(token.clone()));
     token

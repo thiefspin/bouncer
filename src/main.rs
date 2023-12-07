@@ -100,7 +100,7 @@ fn create_server() -> Rocket<Build> {
     let settings = OpenApiSettings::default();
     mount_endpoints_and_merged_docs! {
     build_rocket, "/api".to_owned(), settings,
-        "/" => openapi_get_routes_spec![health_controller::health],
+        "" => openapi_get_routes_spec![health_controller::health, health_controller::system_info],
         "/users" => get_user_controller_routes(),
         "/auth" => get_auth_controller_routes()
     }

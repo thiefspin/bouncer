@@ -12,7 +12,7 @@ impl<'a> OpenApiFromRequest<'a> for UserClaim {
         // Setup global requirement for Security scheme
         let security_scheme = SecurityScheme {
             description: Some(
-                "Requires an Bearer token to access, token is: `mytoken`.".to_owned(),
+                "Requires an Bearer token to access. Format: Authorization: bearer `token`".to_owned(),
             ),
             // Setup data requirements.
             // In this case the header `Authorization: mytoken` needs to be set.
@@ -27,7 +27,7 @@ impl<'a> OpenApiFromRequest<'a> for UserClaim {
         // This can change between routes.
         let mut security_req = SecurityRequirement::new();
         // Each security requirement needs to be met before access is allowed.
-        security_req.insert("HttpAuth".to_owned(), Vec::new());
+        security_req.insert("JWT Authentication".to_owned(), Vec::new());
         // These vvvvvvv-----^^^^^^^^ values need to match exactly!
         Ok(RequestHeaderInput::Security(
             "HttpAuth".to_owned(),
