@@ -16,9 +16,6 @@ WORKDIR /app
 RUN apt-get update
 RUN apt-get install pkg-config -y
 RUN apt-get install libssh-dev -y
-#RUN echo "Running sqlx prepare"
-#RUN cargo sqlx prepare
-#RUN echo "Finished sqlx prepare"
 
 # Build the application.
 # Leverage a cache mount to /usr/local/cargo/registry/
