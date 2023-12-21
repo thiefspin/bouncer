@@ -9,8 +9,9 @@ pub async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
                 println!("✅ Migrations ran successfully");
                 Ok(rocket)
             }
-            Err(_) => {
+            Err(err) => {
                 println!("🔥 Migrations could not run successfully");
+                println!("{}", err);
                 Err(rocket)
             }
         }
