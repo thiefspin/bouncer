@@ -1,21 +1,25 @@
-use rocket_db_pools::Connection;
+use rocket::State;
 
-use crate::Db;
+use crate::AppContext;
 use crate::users::user_dao;
 use crate::users::user_model::{User, UserCreateRequest};
 
-pub async fn list_users(db: Connection<Db>) -> Vec<User> {
-    return user_dao::list(db).await;
+pub async fn list_users(ctx: &State<AppContext>) -> Vec<User> {
+    return user_dao::list(&ctx.db_pool).await;
 }
 
-pub async fn get(id: i64, db: Connection<Db>) -> Option<User> {
-    return user_dao::get(id, db).await;
+pub async fn get(id: i64, ctx: &State<AppContext>) -> Option<User> {
+    return user_dao::get(id, &ctx.db_pool).await;
 }
 
-pub async fn get_by_email(email: String, db: Connection<Db>) -> Option<User> {
-    return user_dao::get_by_email(email, db).await;
+pub async fn get_by_email(email: String, ctx: &State<AppContext>) -> Option<User> {
+    return user_dao::get_by_email(email, &ctx.db_pool).await;
 }
 
-pub async fn create(user: &UserCreateRequest, db: Connection<Db>) -> Option<User> {
-    return user_dao::create(user, db).await;
+pub async fn create(user: &UserCreateRequest, ctx: &State<AppContext>) -> Option<User> {
+    return user_dao::create(user, &ctx.db_pool).await;
+}
+
+pub async fn update_last_login(id: i64, ctx: &State<AppContext>) -> Option<User> {
+    return user_dao::update_last_login(id, &ctx.db_pool).await;
 }

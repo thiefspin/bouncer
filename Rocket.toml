@@ -3,10 +3,3 @@ min_connections = 4
 max_connections = 10
 connect_timeout = 5
 idle_timeout = 120
-
-[testing.databases.test]
-url = "postgres://postgres:postgres@localhost:55004/test"
-min_connections = 4
-max_connections = 10
-connect_timeout = 5
-idle_timeout = 120
