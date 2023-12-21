@@ -5,14 +5,15 @@ use rocket::{Build, Rocket, Route};
 use rocket::figment::Figment;
 use rocket::form::FromForm;
 use rocket::serde::{Deserialize, Serialize};
-use rocket_db_pools::{Config, Database, sqlx};
+use rocket_db_pools::{Config, sqlx};
 use rocket_okapi::{JsonSchema, mount_endpoints_and_merged_docs, openapi_get_routes_spec};
 use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::settings::OpenApiSettings;
-use sqlx::{FromRow, PgPool};
-use sqlx::postgres::PgPoolOptions;
+use sqlx::FromRow;
 
 use controllers::{auth_controller, system_controller, user_controller};
+
+use crate::app::database::{Database, DatabaseConfig};
 
 #[path = "./users/mod.rs"]
 mod users;
@@ -32,7 +33,7 @@ mod utils;
 
 #[derive(Clone, Debug)]
 pub struct AppContext {
-    db_pool: PgPool
+    database: Database
 }
 
 fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
@@ -73,30 +74,11 @@ fn create_db_config(port: u16) -> Figment {
 }
 
 async fn create_server(db_port: u16) -> Rocket<Build> {
-    let database_url = format!("postgres://service:password@localhost:{}/test", db_port);
-    let pool = match PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&database_url)
-        .await
-    {
-        Ok(pool) => {
-            println!("✅Connection to the database is successful!");
-            pool
-        }
-        Err(err) => {
-            println!("🔥 Failed to connect to the database: {:?}", err);
-            std::process::exit(1);
-        }
+    let database_config = DatabaseConfig {
+        port: db_port
     };
-    match sqlx::migrate!().run(&pool).await {
-        Ok(_) => {
-            println!("✅ Migrations ran successfully");
-        }
-        Err(err) => {
-            println!("🔥 Migrations could not run successfully");
-            println!("{}", err);
-        }
-    }
+    let db = Database::init(database_config).await;
+    db.run_migrations().await;
     let db_config = create_db_config(db_port);
     let mut build_rocket = rocket::custom(db_config)
         .register("/", catchers![app::catchers::internal_error, app::catchers::unauthorized])
@@ -109,6 +91,6 @@ async fn create_server(db_port: u16) -> Rocket<Build> {
         "/users" => get_user_controller_routes(),
         "/auth" => get_auth_controller_routes()
     }
-    build_rocket.manage(AppContext{db_pool: pool})
+    build_rocket.manage(AppContext{database: db})
 
 }
