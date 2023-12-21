@@ -12,3 +12,6 @@ CREATE TABLE IF NOT EXISTS bouncer.users
     created    timestamp   NOT NULL,
     last_login timestamp
 );
+
+INSERT INTO bouncer.users (email, name, surname, phone, password, created)
+VALUES ('setupuser@mail.com', 'Setup', 'User', '0838748937', 'password', now())
