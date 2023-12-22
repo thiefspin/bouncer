@@ -1,5 +1,8 @@
+use lazy_static::lazy_static;
 use rocket::State;
 use rocket_jwt::jwt;
+use std::env;
+use std::string::ToString;
 
 use crate::{AppContext};
 use crate::auth::auth_token_validation::AuthToken;
@@ -9,7 +12,10 @@ use crate::auth::login_response::LoginResponse;
 use crate::users::user_model::User;
 use crate::users::user_service;
 
-static SECRET_KEY: &str = "very_secret_key";
+lazy_static! {
+    static ref SECRET_KEY: String = env::var("JWT_SECRET")
+    .unwrap_or("jCDVDI7HiyPzJFKpsWfkHMlCLtD6BTGS".to_string());
+}
 
 #[jwt(SECRET_KEY, exp = 100)]
 pub struct UserClaim {

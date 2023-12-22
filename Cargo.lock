@@ -235,6 +235,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "jsonwebtoken",
+ "lazy_static",
  "rocket",
  "rocket-jwt",
  "rocket_db_pools",

@@ -11,9 +11,13 @@ use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::settings::OpenApiSettings;
 use sqlx::FromRow;
 
-use controllers::{auth_controller, system_controller, user_controller};
+use controllers::{system_controller, user_controller};
 
 use crate::app::database::{Database, DatabaseConfig};
+use crate::controllers::auth_controller::AuthController;
+use crate::controllers::system_controller::SystemController;
+use crate::controllers::user_controller::UserController;
+use crate::utils::controller_utils::BaseController;
 
 #[path = "./users/mod.rs"]
 mod users;
@@ -36,21 +40,6 @@ pub struct AppContext {
     database: Database
 }
 
-fn get_user_controller_routes() -> (Vec<Route>, OpenApi) {
-    return openapi_get_routes_spec![
-        user_controller::list_users,
-        user_controller::get_user,
-        user_controller::create
-    ];
-}
-
-fn get_auth_controller_routes() -> (Vec<Route>, OpenApi) {
-    return openapi_get_routes_spec![
-        auth_controller::login,
-        auth_controller::validate
-    ];
-}
-
 #[rocket::main]
 async fn main() {
     let db_config = DatabaseConfig::init();
@@ -60,18 +49,6 @@ async fn main() {
         Ok(_) => println!("Rocket shut down gracefully."),
         Err(err) => println!("Rocket had an error: {}", err),
     };
-}
-
-fn create_db_config(port: u16) -> Figment {
-    let figment = rocket::Config::figment()
-        .merge(("databases.test", Config {
-            url: format!("postgres://service:password@localhost:{}/test", port).into(),
-            min_connections: None,
-            max_connections: 10,
-            connect_timeout: 3,
-            idle_timeout: Some(30000),
-        }));
-    return figment;
 }
 
 async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
@@ -84,9 +61,9 @@ async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
     let settings = OpenApiSettings::default();
     mount_endpoints_and_merged_docs! {
     build_rocket, "/api".to_owned(), settings,
-        "" => openapi_get_routes_spec![system_controller::health, system_controller::system_info],
-        "/users" => get_user_controller_routes(),
-        "/auth" => get_auth_controller_routes()
+        "" => SystemController::routes(),
+        "/users" => UserController::routes(),
+        "/auth" => AuthController::routes()
     }
     build_rocket.manage(AppContext{database: db})
 

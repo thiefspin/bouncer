@@ -1,8 +1,9 @@
 use rocket::http::Status;
 use rocket::response::status::Unauthorized;
 use rocket::serde::json::Json;
-use rocket::State;
-use rocket_okapi::openapi;
+use rocket::{Route, State};
+use rocket_okapi::okapi::openapi3::OpenApi;
+use rocket_okapi::{openapi, openapi_get_routes_spec};
 
 use crate::{AppContext};
 use crate::auth::auth_service;
@@ -10,6 +11,18 @@ use crate::auth::auth_token_validation::AuthToken;
 use crate::auth::login_error::LoginError;
 use crate::auth::login_form::LoginForm;
 use crate::auth::login_response::LoginResponse;
+use crate::utils::controller_utils::BaseController;
+
+pub struct AuthController;
+
+impl BaseController for AuthController {
+    fn routes() -> (Vec<Route>, OpenApi) {
+        return openapi_get_routes_spec![
+            login,
+            validate
+        ];
+    }
+}
 
 #[openapi(tag = "Authentication")]
 #[post("/login", format = "application/json", data = "<login_form>")]
