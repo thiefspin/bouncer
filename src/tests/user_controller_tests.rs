@@ -13,7 +13,7 @@ use crate::users::user_model::User;
 async fn test_list_users() {
     with_postgres_test_container(|config| async move {
         //Given
-        let rocket = create_server(config).await;
+        let rocket = create_server(config.clone()).await;
         let client = Client::tracked(rocket).await.unwrap();
         let mut req = client.get("/api/users");
         let auth_token = login_token(config.clone()).await;
