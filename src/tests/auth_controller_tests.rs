@@ -9,9 +9,9 @@ use crate::tests::testing_postgres::with_postgres_test_container;
 
 #[rocket::async_test]
 async fn test_login_failure() {
-    with_postgres_test_container(|pg_port| async move {
+    with_postgres_test_container(|config| async move {
         //Given
-        let rocket = create_server(pg_port).await;
+        let rocket = create_server(config).await;
         let client = Client::tracked(rocket).await.unwrap();
         let body = LoginForm{
             email: "test@mail.com".to_owned(),
@@ -37,9 +37,9 @@ async fn test_login_failure() {
 
 #[rocket::async_test]
 async fn test_login_success() {
-    with_postgres_test_container(|pg_port| async move {
+    with_postgres_test_container(|config| async move {
         //Given
-        let rocket = create_server(pg_port).await;
+        let rocket = create_server(config).await;
         let client = Client::tracked(rocket).await.unwrap();
         let body = LoginForm{
             email: "setupuser@mail.com".to_owned(),

@@ -40,7 +40,6 @@ pub async fn create(user: &UserCreateRequest, conn: &PgPool) -> Option<User> {
 }
 
 pub async fn update_last_login(id: i64, conn: &PgPool) -> Option<User> {
-    // let conn = &Db::;
     let query_result = query_as!(
         User,
         "UPDATE bouncer.users SET last_login = $1 WHERE id = $2 RETURNING *",

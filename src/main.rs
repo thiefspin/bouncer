@@ -53,7 +53,8 @@ fn get_auth_controller_routes() -> (Vec<Route>, OpenApi) {
 
 #[rocket::main]
 async fn main() {
-    let server = create_server(5432).await;
+    let db_config = DatabaseConfig::init();
+    let server = create_server(db_config).await;
     let launch_result = server.launch().await;
     match launch_result {
         Ok(_) => println!("Rocket shut down gracefully."),
@@ -73,14 +74,10 @@ fn create_db_config(port: u16) -> Figment {
     return figment;
 }
 
-async fn create_server(db_port: u16) -> Rocket<Build> {
-    let database_config = DatabaseConfig {
-        port: db_port
-    };
-    let db = Database::init(database_config).await;
+async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
+    let db = Database::init(db_config).await;
     db.run_migrations().await;
-    let db_config = create_db_config(db_port);
-    let mut build_rocket = rocket::custom(db_config)
+    let mut build_rocket = rocket::build()
         .register("/", catchers![app::catchers::internal_error, app::catchers::unauthorized])
         .mount("/swagger-ui/", app::swagger::swagger_ui())
         .mount("/rapidoc/", app::swagger::swagger_doc_config());

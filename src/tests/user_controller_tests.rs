@@ -1,6 +1,7 @@
 use rocket::http::{ContentType, Header, Status};
 use rocket::local::asynchronous::Client;
 use rocket::serde::json;
+use crate::app::database::DatabaseConfig;
 
 use crate::auth::login_form::LoginForm;
 use crate::auth::login_response::LoginResponse;
@@ -10,12 +11,12 @@ use crate::users::user_model::User;
 
 #[rocket::async_test]
 async fn test_list_users() {
-    with_postgres_test_container(|pg_port| async move {
+    with_postgres_test_container(|config| async move {
         //Given
-        let rocket = create_server(pg_port).await;
+        let rocket = create_server(config).await;
         let client = Client::tracked(rocket).await.unwrap();
         let mut req = client.get("/api/users");
-        let auth_token = login_token(pg_port).await;
+        let auth_token = login_token(config.clone()).await;
         req.add_header(Header::new("Authorization", format!("Bearer {}", auth_token)));
 
         //When
@@ -30,8 +31,8 @@ async fn test_list_users() {
     }).await;
 }
 
-async fn login_token(pg_port: u16) -> String {
-    let rocket = create_server(pg_port).await;
+async fn login_token(config: DatabaseConfig) -> String {
+    let rocket = create_server(config).await;
     let client = Client::tracked(rocket).await.unwrap();
     let body = LoginForm {
         email: "setupuser@mail.com".to_owned(),
