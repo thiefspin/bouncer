@@ -12,6 +12,7 @@ use rocket_okapi::settings::OpenApiSettings;
 use sqlx::FromRow;
 
 use controllers::{system_controller, user_controller};
+use crate::app::catchers::Catchers;
 
 use crate::app::database::{Database, DatabaseConfig};
 use crate::controllers::auth_controller::AuthController;
@@ -55,15 +56,15 @@ async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
     let db = Database::init(db_config).await;
     db.run_migrations().await;
     let mut build_rocket = rocket::build()
-        .register("/", catchers![app::catchers::internal_error, app::catchers::unauthorized])
+        .register("/", Catchers::catchers())
         .mount("/swagger-ui/", app::swagger::swagger_ui())
         .mount("/rapidoc/", app::swagger::swagger_doc_config());
     let settings = OpenApiSettings::default();
     mount_endpoints_and_merged_docs! {
     build_rocket, "/api".to_owned(), settings,
         "" => SystemController::routes(),
-        "/users" => UserController::routes(),
-        "/auth" => AuthController::routes()
+        "/auth" => AuthController::routes(),
+        "/users" => UserController::routes()
     }
     build_rocket.manage(AppContext{database: db})
 
