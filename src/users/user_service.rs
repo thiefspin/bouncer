@@ -2,7 +2,7 @@ use rocket::State;
 
 use crate::AppContext;
 use crate::users::user_dao;
-use crate::users::user_model::{User, UserCreateRequest};
+use crate::users::models::{User, UserCreateRequest};
 
 pub async fn list_users(ctx: &State<AppContext>) -> Vec<User> {
     return user_dao::list(ctx.database.get_connection()).await;

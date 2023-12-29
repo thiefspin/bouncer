@@ -34,28 +34,30 @@ pub struct SystemInformation {
     pub cpus: Vec<String>,
 }
 
-//https://docs.rs/sysinfo/latest/sysinfo/
-pub fn get_system_info() -> SystemInformation {
-    let mut sys = System::new_all();
-    sys.refresh_all();
+impl SystemInformation {
+    //https://docs.rs/sysinfo/latest/sysinfo/
+    pub fn collect() -> Self {
+        let mut sys = System::new_all();
+        sys.refresh_all();
 
-    let unknown = "Unknown".to_string();
-    let cpu_usages = sys.cpus().iter().map(|c| format!("{}%", c.cpu_usage())).collect();
+        let unknown = "Unknown".to_string();
+        let cpu_usages = sys.cpus().iter().map(|c| format!("{}%", c.cpu_usage())).collect();
 
-    SystemInformation {
-        system: SystemOs {
-            name: sys.name().unwrap_or(unknown.clone()),
-            kernel_version: sys.kernel_version().unwrap_or(unknown.clone()),
-            os_version: sys.os_version().unwrap_or(unknown.clone()),
-            host_name: sys.host_name().unwrap_or(unknown.clone()),
-        },
-        memory: SystemMemory {
-            total: bytes_to_gigabytes(sys.total_memory()),
-            used: bytes_to_gigabytes(sys.used_memory()),
-            swap: bytes_to_gigabytes(sys.total_swap()),
-            used_swap: bytes_to_gigabytes(sys.used_swap())
-        },
-        cpus: cpu_usages,
+        SystemInformation {
+            system: SystemOs {
+                name: sys.name().unwrap_or(unknown.clone()),
+                kernel_version: sys.kernel_version().unwrap_or(unknown.clone()),
+                os_version: sys.os_version().unwrap_or(unknown.clone()),
+                host_name: sys.host_name().unwrap_or(unknown.clone()),
+            },
+            memory: SystemMemory {
+                total: bytes_to_gigabytes(sys.total_memory()),
+                used: bytes_to_gigabytes(sys.used_memory()),
+                swap: bytes_to_gigabytes(sys.total_swap()),
+                used_swap: bytes_to_gigabytes(sys.used_swap())
+            },
+            cpus: cpu_usages,
+        }
     }
 }
 

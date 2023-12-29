@@ -1,6 +1,6 @@
 use rocket_db_pools::sqlx::*;
 
-use crate::users::user_model::{User, UserCreateRequest};
+use crate::users::models::{User, UserCreateRequest};
 use crate::utils::date_time::DateUtils;
 
 pub async fn list(conn: &PgPool) -> Vec<User> {
@@ -31,7 +31,7 @@ pub async fn create(user: &UserCreateRequest, conn: &PgPool) -> Option<User> {
     let query_result = query_as!(
         User,
         "INSERT INTO bouncer.users (email, name, surname, phone, password, created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        user.email, user.name, user.surname, user.phone, user.password, DateUtils::sast_now().naive_utc()
+        user.email, user.name, user.surname, user.phone, user.password, DateUtils::utc_naive()
     ).fetch_optional(conn).await;
     return match query_result {
         Ok(result) => result,
@@ -43,7 +43,7 @@ pub async fn update_last_login(id: i64, conn: &PgPool) -> Option<User> {
     let query_result = query_as!(
         User,
         "UPDATE bouncer.users SET last_login = $1 WHERE id = $2 RETURNING *",
-        DateUtils::sast_now().naive_utc(), id
+        DateUtils::utc_naive(), id
     ).fetch_optional(conn).await;
     return match query_result {
         Ok(result) => result,

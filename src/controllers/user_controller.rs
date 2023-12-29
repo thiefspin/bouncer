@@ -5,15 +5,12 @@ use rocket::{Route, State};
 use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
 
-use crate::{AppContext};
-use crate::app::catchers::ApiError;
+use crate::application::context::AppContext;
+use crate::application::catchers::ApiError;
 use crate::auth::auth_service::UserClaim;
-use crate::users::user_model::{User, UserCreateRequest};
+use crate::users::models::{User, UserCreateRequest};
 use crate::users::user_service;
 use crate::utils::controller_utils::BaseController;
-
-#[path = "../users/mod.rs"]
-mod users;
 
 pub struct UserController;
 

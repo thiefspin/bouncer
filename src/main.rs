@@ -1,45 +1,27 @@
 #[macro_use]
 extern crate rocket;
 
-use rocket::{Build, Rocket, Route};
-use rocket::figment::Figment;
-use rocket::form::FromForm;
-use rocket::serde::{Deserialize, Serialize};
-use rocket_db_pools::{Config, sqlx};
-use rocket_okapi::{JsonSchema, mount_endpoints_and_merged_docs, openapi_get_routes_spec};
-use rocket_okapi::okapi::openapi3::OpenApi;
+use rocket::{Build, Rocket};
+use rocket_okapi::{mount_endpoints_and_merged_docs};
 use rocket_okapi::settings::OpenApiSettings;
-use sqlx::FromRow;
 
-use controllers::{system_controller, user_controller};
-use crate::app::catchers::Catchers;
-
-use crate::app::database::{Database, DatabaseConfig};
+use crate::application::catchers::Catchers;
+use crate::application::context::AppContext;
+use crate::application::database::{Database, DatabaseConfig};
+use crate::application::swagger::Swagger;
 use crate::controllers::auth_controller::AuthController;
 use crate::controllers::system_controller::SystemController;
 use crate::controllers::user_controller::UserController;
 use crate::utils::controller_utils::BaseController;
 
-#[path = "./users/mod.rs"]
+mod utils;
+mod controllers;
+mod application;
 mod users;
-
-#[path = "./auth/mod.rs"]
 mod auth;
-
-#[path = "application/mod.rs"]
-mod app;
 
 #[cfg(test)]
 mod tests;
-
-#[path = "controllers/mod.rs"]
-mod controllers;
-mod utils;
-
-#[derive(Clone, Debug)]
-pub struct AppContext {
-    database: Database
-}
 
 #[rocket::main]
 async fn main() {
@@ -57,8 +39,8 @@ async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
     db.run_migrations().await;
     let mut build_rocket = rocket::build()
         .register("/", Catchers::catchers())
-        .mount("/swagger-ui/", app::swagger::swagger_ui())
-        .mount("/rapidoc/", app::swagger::swagger_doc_config());
+        .mount("/swagger-ui/", Swagger::swagger_ui())
+        .mount("/rapidoc/", Swagger::swagger_doc_config());
     let settings = OpenApiSettings::default();
     mount_endpoints_and_merged_docs! {
     build_rocket, "/api".to_owned(), settings,
@@ -66,6 +48,5 @@ async fn create_server(db_config: DatabaseConfig) -> Rocket<Build> {
         "/auth" => AuthController::routes(),
         "/users" => UserController::routes()
     }
-    build_rocket.manage(AppContext{database: db})
-
+    build_rocket.manage(AppContext { database: db })
 }

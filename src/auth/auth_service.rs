@@ -5,11 +5,8 @@ use std::env;
 use std::string::ToString;
 
 use crate::{AppContext};
-use crate::auth::auth_token_validation::AuthToken;
-use crate::auth::login_error::LoginError;
-use crate::auth::login_form::LoginForm;
-use crate::auth::login_response::LoginResponse;
-use crate::users::user_model::User;
+use crate::auth::models::{AuthToken, LoginError, LoginForm, LoginResponse};
+use crate::users::models::User;
 use crate::users::user_service;
 
 lazy_static! {

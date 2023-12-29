@@ -2,8 +2,8 @@ use rocket::form::validate::Contains;
 use rocket::http::{ContentType, Status};
 use rocket::local::asynchronous::Client;
 use rocket::serde::json;
+use crate::auth::models::LoginForm;
 
-use crate::auth::login_form::LoginForm;
 use crate::create_server;
 use crate::tests::testing_postgres::with_postgres_test_container;
 

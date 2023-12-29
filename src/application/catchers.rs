@@ -21,8 +21,11 @@ impl Catchers {
 }
 
 #[catch(500)]
-pub fn internal_error() -> &'static str {
-    "Well... This is embarrassing..."
+pub fn internal_error() -> Json<ApiError> {
+    Json(ApiError {
+        status: 500,
+        message: "Well... This is embarrassing...".to_string(),
+    })
 }
 
 #[catch(401)]
@@ -30,7 +33,7 @@ pub fn unauthorized(req: &Request) -> Json<ApiError> {
     println!("{}", req.uri());
     Json(ApiError {
         status: 401,
-        message: "Requires authentication".to_string(),
+        message: format!("'{}' Requires authentication", req.uri()),
     })
 }
 
@@ -38,6 +41,6 @@ pub fn unauthorized(req: &Request) -> Json<ApiError> {
 pub fn not_found(req: &Request) -> Json<ApiError> {
     Json(ApiError {
         status: 404,
-        message: format!("{} resource not found", req.uri()),
+        message: format!("'{}' Resource not found", req.uri()),
     })
 }

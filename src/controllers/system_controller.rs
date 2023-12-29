@@ -1,11 +1,9 @@
 use rocket::Route;
 use rocket::serde::json::Json;
-use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
-use sysinfo::SystemExt;
+use rocket_okapi::okapi::openapi3::OpenApi;
 
-use crate::app::system_information;
-use crate::app::system_information::SystemInformation;
+use crate::application::system_information::SystemInformation;
 use crate::utils::controller_utils::BaseController;
 
 pub struct SystemController;
@@ -28,5 +26,5 @@ pub fn health() -> &'static str {
 #[openapi(tag = "Health")]
 #[get("/sysinfo")]
 pub fn system_info() -> Json<SystemInformation> {
-    return Json(system_information::get_system_info())
+    return Json(SystemInformation::collect())
 }

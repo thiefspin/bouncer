@@ -3,11 +3,10 @@ use rocket::local::asynchronous::Client;
 use rocket::serde::json;
 use crate::app::database::DatabaseConfig;
 
-use crate::auth::login_form::LoginForm;
-use crate::auth::login_response::LoginResponse;
+use crate::auth::models::{LoginForm, LoginResponse};
 use crate::create_server;
 use crate::tests::testing_postgres::with_postgres_test_container;
-use crate::users::user_model::User;
+use crate::users::models::User;
 
 #[rocket::async_test]
 async fn test_list_users() {

@@ -1,16 +1,12 @@
+use rocket::{Route, State};
 use rocket::http::Status;
 use rocket::response::status::Unauthorized;
 use rocket::serde::json::Json;
-use rocket::{Route, State};
-use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
-
-use crate::{AppContext};
+use rocket_okapi::okapi::openapi3::OpenApi;
+use crate::application::context::AppContext;
 use crate::auth::auth_service;
-use crate::auth::auth_token_validation::AuthToken;
-use crate::auth::login_error::LoginError;
-use crate::auth::login_form::LoginForm;
-use crate::auth::login_response::LoginResponse;
+use crate::auth::models::{AuthToken, LoginError, LoginForm, LoginResponse};
 use crate::utils::controller_utils::BaseController;
 
 pub struct AuthController;
