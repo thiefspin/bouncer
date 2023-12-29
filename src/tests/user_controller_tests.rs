@@ -1,7 +1,7 @@
 use rocket::http::{ContentType, Header, Status};
 use rocket::local::asynchronous::Client;
 use rocket::serde::json;
-use crate::app::database::DatabaseConfig;
+use crate::application::database::DatabaseConfig;
 
 use crate::auth::models::{LoginForm, LoginResponse};
 use crate::create_server;

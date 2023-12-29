@@ -2,7 +2,7 @@ use std::future::Future;
 
 use testcontainers::{clients, Container, core::WaitFor, GenericImage};
 use testcontainers::clients::Cli;
-use crate::app::database::DatabaseConfig;
+use crate::application::database::DatabaseConfig;
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
