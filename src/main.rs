@@ -1,12 +1,16 @@
 #[macro_use]
 extern crate rocket;
 
+#[macro_use]
+extern crate log;
+
 use rocket::{Build, Rocket};
-use rocket_okapi::{mount_endpoints_and_merged_docs};
+use rocket_okapi::mount_endpoints_and_merged_docs;
 use rocket_okapi::settings::OpenApiSettings;
 
 use crate::application::catchers::Catchers;
 use crate::application::context::AppContext;
+use crate::application::logging::Logging;
 use crate::application::database::{Database, DatabaseConfig};
 use crate::application::swagger::Swagger;
 use crate::controllers::auth_controller::AuthController;
@@ -25,12 +29,11 @@ mod tests;
 
 #[rocket::main]
 async fn main() {
-    let db_config = DatabaseConfig::init();
-    let server = create_server(db_config).await;
-    let launch_result = server.launch().await;
-    match launch_result {
-        Ok(_) => println!("Rocket shut down gracefully."),
-        Err(err) => println!("Rocket had an error: {}", err),
+    Logging::init();
+    let server = create_server(DatabaseConfig::init()).await;
+    match server.launch().await {
+        Ok(_) => info!("Rocket shut down gracefully."),
+        Err(err) => error!("Rocket had an error launching: {}", err),
     };
 }
 

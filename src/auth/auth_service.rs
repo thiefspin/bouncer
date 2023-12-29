@@ -14,7 +14,7 @@ lazy_static! {
     .unwrap_or("jCDVDI7HiyPzJFKpsWfkHMlCLtD6BTGS".to_string());
 }
 
-#[jwt(SECRET_KEY, exp = 100)]
+#[jwt(SECRET_KEY, exp = 3600)]
 pub struct UserClaim {
     pub user: User,
 }

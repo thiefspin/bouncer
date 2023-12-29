@@ -42,11 +42,11 @@ impl Database {
             .await
         {
             Ok(pool) => {
-                println!("✅Connection to the database is successful!");
+                info!("✅Connection to the database is successful!");
                 pool
             }
             Err(err) => {
-                println!("🔥 Failed to connect to the database: {:?}", err);
+                error!("🔥 Failed to connect to the database: {:?}", err);
                 std::process::exit(1);
             }
         };
@@ -60,11 +60,10 @@ impl Database {
     pub async fn run_migrations(&self) {
         match sqlx::migrate!().run(&self.pool).await {
             Ok(_) => {
-                println!("✅ Migrations ran successfully");
+                info!("✅ Migrations ran successfully");
             }
             Err(err) => {
-                println!("🔥 Migrations could not run successfully");
-                println!("{}", err);
+                error!("🔥 Migrations could not run successfully. {}", err);
             }
         }
     }
