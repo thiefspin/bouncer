@@ -5,6 +5,7 @@ use std::time::Duration;
 use log::LevelFilter;
 use sqlx::{ConnectOptions, Pool, Postgres};
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use crate::application::metrics::DATABASE_CONNECTION_COUNTER;
 
 #[derive(Clone, Debug)]
 pub struct DatabaseConfig {
@@ -66,6 +67,7 @@ impl Database {
             .max_connections(config.max_connections)
             .min_connections(2)
             .after_connect(|_conn, _meta| Box::pin(async move {
+                DATABASE_CONNECTION_COUNTER.with_label_values(&["connection"]).inc();
                 debug!("Acquired new database connection");
                 Ok(())
             }))

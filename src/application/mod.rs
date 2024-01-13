@@ -4,3 +4,4 @@ pub mod swagger;
 pub mod database;
 pub mod context;
 pub mod logging;
+pub mod metrics;

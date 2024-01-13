@@ -238,10 +238,13 @@ dependencies = [
  "jsonwebtoken",
  "lazy_static",
  "log",
+ "once_cell",
+ "prometheus",
  "rocket",
  "rocket-jwt",
  "rocket_db_pools",
  "rocket_okapi",
+ "rocket_prometheus",
  "schemars",
  "serde",
  "sqlx",
@@ -1642,6 +1645,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "prometheus"
+version = "0.13.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "449811d15fbdf5ceb5c1144416066429cf82316e2ec8ce0c1f6f8a02e7bbcf8c"
+dependencies = [
+ "cfg-if",
+ "fnv",
+ "lazy_static",
+ "memchr",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "thiserror",
+]
+
+[[package]]
 name = "promptly"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1649,6 +1667,12 @@ checksum = "9acbc6c5a5b029fe58342f58445acb00ccfe24624e538894bc2f04ce112980ba"
 dependencies = [
  "rustyline",
 ]
+
+[[package]]
+name = "protobuf"
+version = "2.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "106dd99e98437432fed6519dedecfade6a06a73bb7b2a1e019fdd2bee5778d94"
 
 [[package]]
 name = "quote"
@@ -2000,6 +2024,16 @@ dependencies = [
  "quote",
  "rocket_http",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "rocket_prometheus"
+version = "0.10.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3e70efcf6b0234723d0d295b95d64283ed02bb98a8a3f0c8c7ebb5b8da69165"
+dependencies = [
+ "prometheus",
+ "rocket",
 ]
 
 [[package]]
