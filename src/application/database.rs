@@ -2,10 +2,10 @@ use std::env;
 use std::str::FromStr;
 use std::time::Duration;
 
-use log::LevelFilter;
-use sqlx::{ConnectOptions, Pool, Postgres};
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use crate::application::metrics::DATABASE_CONNECTION_COUNTER;
+use log::LevelFilter;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use sqlx::{ConnectOptions, Pool, Postgres};
 
 #[derive(Clone, Debug)]
 pub struct DatabaseConfig {
@@ -20,11 +20,16 @@ pub struct DatabaseConfig {
 
 impl DatabaseConfig {
     pub fn init() -> Self {
-        let port = env::var("POSTGRES_PORT").expect("Please define an ENV var for POSTGRES_PORT").parse::<u16>().unwrap();
+        let port = env::var("POSTGRES_PORT")
+            .expect("Please define an ENV var for POSTGRES_PORT")
+            .parse::<u16>()
+            .unwrap();
         let host = env::var("POSTGRES_HOST").expect("Please define an ENV var for POSTGRES_HOST");
         let user = env::var("POSTGRES_USER").expect("Please define an ENV var for POSTGRES_USER");
-        let password = env::var("POSTGRES_PASSWORD").expect("Please define an ENV var for POSTGRES_PASSWORD");
-        let database_name = env::var("POSTGRES_DATABASE_NAME").expect("Please define an ENV var for POSTGRES_DATABASE_NAME");
+        let password =
+            env::var("POSTGRES_PASSWORD").expect("Please define an ENV var for POSTGRES_PASSWORD");
+        let database_name = env::var("POSTGRES_DATABASE_NAME")
+            .expect("Please define an ENV var for POSTGRES_DATABASE_NAME");
         let max_connections = match env::var("POSTGRES_MAX_CONNECTIONS") {
             Ok(conn) => conn.parse::<u32>().unwrap(),
             Err(_) => {
@@ -58,23 +63,37 @@ pub struct Database {
 
 impl Database {
     pub async fn init(config: DatabaseConfig) -> Database {
-        let database_url = format!("postgres://{}:{}@{}:{}/{}", config.user, config.password, config.host, config.port, config.database_name);
-        let options = PgConnectOptions::from_str(&database_url).unwrap()
+        let database_url = format!(
+            "postgres://{}:{}@{}:{}/{}",
+            config.user, config.password, config.host, config.port, config.database_name
+        );
+        let options = PgConnectOptions::from_str(&database_url)
+            .unwrap()
             .disable_statement_logging()
             .log_slow_statements(LevelFilter::Warn, Duration::from_millis(500))
             .clone();
         let pool = match PgPoolOptions::new()
             .max_connections(config.max_connections)
             .min_connections(2)
-            .after_connect(|_conn, _meta| Box::pin(async move {
-                DATABASE_CONNECTION_COUNTER.with_label_values(&["connection"]).inc();
-                debug!("Acquired new database connection");
-                Ok(())
-            }))
-            .after_release(|_conn, meta| Box::pin(async move {
-                debug!("Released database connection. Age: {} seconds, Idled: {} seconds", meta.age.as_secs(), meta.idle_for.as_secs());
-                Ok(true)
-            }))
+            .after_connect(|_conn, _meta| {
+                Box::pin(async move {
+                    DATABASE_CONNECTION_COUNTER
+                        .with_label_values(&["connection"])
+                        .inc();
+                    debug!("Acquired new database connection");
+                    Ok(())
+                })
+            })
+            .after_release(|_conn, meta| {
+                Box::pin(async move {
+                    debug!(
+                        "Released database connection. Age: {} seconds, Idled: {} seconds",
+                        meta.age.as_secs(),
+                        meta.idle_for.as_secs()
+                    );
+                    Ok(true)
+                })
+            })
             .connect_with(options)
             .await
         {
