@@ -25,7 +25,7 @@ impl BaseController for AuthController {
 pub async fn login(ctx: &State<AppContext>, login_form: Json<LoginForm>) -> Result<Json<LoginResponse>, Unauthorized<Json<LoginError>>> {
     match auth_service::login(ctx, login_form.into_inner()).await {
         Ok(result) => Ok(Json(result)),
-        Err(err) => Err(Unauthorized(Some(Json(err))))
+        Err(err) => Err(Unauthorized(Json(err)))
     }
 }
 

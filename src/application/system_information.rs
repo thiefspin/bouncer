@@ -1,9 +1,9 @@
-use std::string::ToString;
+use rocket::serde::Serialize;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
-use rocket::serde::Serialize;
 use serde::Deserialize;
-use sysinfo::{CpuExt, System, SystemExt};
+use std::string::ToString;
+use sysinfo::System;
 
 #[derive(Clone, Deserialize, Serialize, JsonSchema, Debug)]
 #[allow(non_snake_case)]
@@ -41,20 +41,24 @@ impl SystemInformation {
         sys.refresh_all();
 
         let unknown = "Unknown".to_string();
-        let cpu_usages = sys.cpus().iter().map(|c| format!("{}%", c.cpu_usage())).collect();
+        let cpu_usages = sys
+            .cpus()
+            .iter()
+            .map(|c| format!("{}%", c.cpu_usage()))
+            .collect();
 
         SystemInformation {
             system: SystemOs {
-                name: sys.name().unwrap_or(unknown.clone()),
-                kernel_version: sys.kernel_version().unwrap_or(unknown.clone()),
-                os_version: sys.os_version().unwrap_or(unknown.clone()),
-                host_name: sys.host_name().unwrap_or(unknown.clone()),
+                name: System::name().unwrap_or(unknown.clone()),
+                kernel_version: System::kernel_version().unwrap_or(unknown.clone()),
+                os_version: System::os_version().unwrap_or(unknown.clone()),
+                host_name: System::host_name().unwrap_or(unknown.clone()),
             },
             memory: SystemMemory {
                 total: bytes_to_gigabytes(sys.total_memory()),
                 used: bytes_to_gigabytes(sys.used_memory()),
                 swap: bytes_to_gigabytes(sys.total_swap()),
-                used_swap: bytes_to_gigabytes(sys.used_swap())
+                used_swap: bytes_to_gigabytes(sys.used_swap()),
             },
             cpus: cpu_usages,
         }

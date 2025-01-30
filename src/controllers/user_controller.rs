@@ -5,8 +5,8 @@ use rocket::{Route, State};
 use rocket_okapi::okapi::openapi3::OpenApi;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
 
-use crate::application::context::AppContext;
 use crate::application::catchers::ApiError;
+use crate::application::context::AppContext;
 use crate::auth::auth_service::UserClaim;
 use crate::users::models::{User, UserCreateRequest};
 use crate::users::user_service;
@@ -16,11 +16,7 @@ pub struct UserController;
 
 impl BaseController for UserController {
     fn routes() -> (Vec<Route>, OpenApi) {
-        return openapi_get_routes_spec![
-            list_users,
-            get_user,
-            create
-        ];
+        return openapi_get_routes_spec![list_users, get_user, create];
     }
 }
 
@@ -34,18 +30,23 @@ pub async fn list_users(ctx: &State<AppContext>, user: UserClaim) -> Json<Vec<Us
 #[openapi(tag = "Users")]
 #[get("/<id>")]
 pub async fn get_user(ctx: &State<AppContext>, id: i64) -> Option<Json<User>> {
-    return user_service::get(id, ctx).map(|u_opt| u_opt.map(|u| Json(u))).await;
+    return user_service::get(id, ctx)
+        .map(|u_opt| u_opt.map(|u| Json(u)))
+        .await;
 }
 
 #[openapi(tag = "Users")]
 #[post("/", format = "application/json", data = "<user>")]
-pub async fn create(user: Json<UserCreateRequest>, ctx: &State<AppContext>) -> Result<Json<User>, Conflict<Json<ApiError>>> {
+pub async fn create(
+    user: Json<UserCreateRequest>,
+    ctx: &State<AppContext>,
+) -> Result<Json<User>, Conflict<Json<ApiError>>> {
     let inner = &user.into_inner();
     return match user_service::create(inner, ctx).await {
         Some(result) => Ok(Json(result)),
-        None => Err(Conflict(Some(Json(ApiError {
+        None => Err(Conflict(Json(ApiError {
             status: 409,
             message: format!("User with email {} already exists", inner.email),
-        }))))
+        }))),
     };
 }
