@@ -1,4 +1,4 @@
-name: Rust
+name: Rust CI
 
 on:
   push:
@@ -8,15 +8,56 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  DATABASE_URL: postgres://postgres:password@localhost:5432/my_database
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: my_database
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install SQLx CLI (for migrations)
+      run: cargo install sqlx-cli --no-default-features --features postgres
+
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        for i in {1..10}; do
+          if PGPASSWORD=password psql -h localhost -U postgres -d my_database -c "SELECT 1" > /dev/null 2>&1; then
+            echo "PostgreSQL is ready!"
+            exit 0
+          fi
+          echo "Waiting for PostgreSQL..."
+          sleep 3
+        done
+        echo "PostgreSQL did not become ready in time" >&2
+        exit 1
+
+    - name: Run migrations (if needed)
+      run: sqlx database setup
+
+    - name: Build Rust project
       run: cargo build --verbose
+
     - name: Run tests
       run: cargo test --verbose
+      
