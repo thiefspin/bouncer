@@ -18,7 +18,7 @@ jsonwebtoken = "9.3.0"
 rocket-jwt = "0.5.1"
 sysinfo = "0.33.1"
 sqlx-cli = { version = "0.7.4", default-features = false, features = ["postgres", "rustls"] }
-testcontainers = "0.23.1"
+testcontainers = "0.15.0"
 lazy_static = { version = "1.4.0", features = [] }
 log = "0.4"
 fern = "0.7.1"
