@@ -74,7 +74,7 @@ impl Database {
             .clone();
         let pool = match PgPoolOptions::new()
             .max_connections(config.max_connections)
-            .min_connections(2)
+            .min_connections(config.min_connections)
             .after_connect(|_conn, _meta| {
                 Box::pin(async move {
                     DATABASE_CONNECTION_COUNTER

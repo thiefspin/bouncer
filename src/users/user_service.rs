@@ -1,13 +1,15 @@
 use rocket::State;
 
-use crate::AppContext;
-use crate::users::user_dao;
 use crate::users::models::{User, UserCreateRequest};
+use crate::users::user_dao;
+use crate::AppContext;
+use time_logger_macro::measure_time;
 
 pub async fn list_users(ctx: &State<AppContext>) -> Vec<User> {
     return user_dao::list(ctx.database.get_connection()).await;
 }
 
+#[measure_time]
 pub async fn get(id: i64, ctx: &State<AppContext>) -> Option<User> {
     return user_dao::get(id, ctx.database.get_connection()).await;
 }

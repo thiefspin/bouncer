@@ -12,6 +12,8 @@ use crate::users::models::{User, UserCreateRequest};
 use crate::users::user_service;
 use crate::utils::controller_utils::BaseController;
 
+use log_macro::log_user;
+
 pub struct UserController;
 
 impl BaseController for UserController {
@@ -27,9 +29,10 @@ pub async fn list_users(ctx: &State<AppContext>, user: UserClaim) -> Json<Vec<Us
     Json(user_service::list_users(ctx).await)
 }
 
+#[log_user]
 #[openapi(tag = "Users")]
 #[get("/<id>")]
-pub async fn get_user(ctx: &State<AppContext>, id: i64) -> Option<Json<User>> {
+pub async fn get_user(ctx: &State<AppContext>, id: i64, user: UserClaim) -> Option<Json<User>> {
     return user_service::get(id, ctx)
         .map(|u_opt| u_opt.map(|u| Json(u)))
         .await;
