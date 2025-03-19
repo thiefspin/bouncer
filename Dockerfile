@@ -31,13 +31,14 @@ RUN --mount=type=bind,source=log_macro,target=log_macro \
     --mount=type=bind,source=Rocket.toml,target=Rocket.toml \
     --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
     --mount=type=bind,source=sqlx-data.json,target=sqlx-data.json \
+    --mount=type=bind,source=.sqlx,target=.sqlx \
     --mount=type=bind,source=migrations,target=migrations \
     --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
     <<EOF
 set -e
 cargo install sqlx-cli --version 0.7.4
-export SQLX_OFFLINE=false
+export SQLX_OFFLINE=true
 echo "Starting cargo build"
 cargo build --locked --release
 echo "Finished cargo build"
