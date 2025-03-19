@@ -34,7 +34,7 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
     <<EOF
 set -e
-cargo install sqlx-cli --version 0.6.3
+cargo install sqlx-cli --version 0.7.4
 export SQLX_OFFLINE=true
 echo "Starting cargo build"
 cargo build --locked --release
