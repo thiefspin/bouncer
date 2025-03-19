@@ -37,7 +37,7 @@ RUN --mount=type=bind,source=log_macro,target=log_macro \
     <<EOF
 set -e
 cargo install sqlx-cli --version 0.7.4
-export SQLX_OFFLINE=true
+export SQLX_OFFLINE=false
 echo "Starting cargo build"
 cargo build --locked --release
 echo "Finished cargo build"

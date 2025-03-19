@@ -10,7 +10,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 schemars = { version = "0.8", features = ["chrono"] }
 rocket_okapi = { version = "0.9.0", features = ["swagger", "rapidoc", "rocket_db_pools"] }
-sqlx = { version = "0.7.4", features = ["runtime-async-std-native-tls", "postgres", "chrono", "uuid", "migrate", "time"] }
+sqlx = { version = "0.7.4", features = ["runtime-async-std-native-tls", "postgres", "chrono", "uuid", "migrate", "time", "macros"] }
 # sqlx = { version = "0.8.3", features = ["postgres", "chrono", "uuid", "migrate", "time", "offline"] }
 # sqlx = { version = "0.8.3", features = ["postgres", "chrono", "uuid", "migrate", "time"] }
 dotenv = "0.15.0"
