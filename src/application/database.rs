@@ -16,6 +16,7 @@ pub struct DatabaseConfig {
     pub database_name: String,
     pub min_connections: u32,
     pub max_connections: u32,
+    pub require_ssl: bool
 }
 
 impl DatabaseConfig {
@@ -37,6 +38,13 @@ impl DatabaseConfig {
                 4
             }
         };
+        let require_ssl = match env::var("POSTGRES_REQUIRE_SSL") {
+            Ok(ssl_required) => ssl_required.parse::<bool>().unwrap(),
+            Err(_) => {
+                info!("No SSL set for Postgres");
+                false
+            }
+        };
         let min_connections = match env::var("POSTGRES_MIN_CONNECTIONS") {
             Ok(conn) => conn.parse::<u32>().unwrap(),
             Err(_) => {
@@ -52,6 +60,7 @@ impl DatabaseConfig {
             database_name,
             min_connections,
             max_connections,
+            require_ssl
         }
     }
 }
@@ -63,9 +72,13 @@ pub struct Database {
 
 impl Database {
     pub async fn init(config: DatabaseConfig) -> Database {
+        let mut ssl_parameter = "";
+        if config.require_ssl {
+            ssl_parameter = "?sslmode=require";
+        }
         let database_url = format!(
-            "postgres://{}:{}@{}:{}/{}",
-            config.user, config.password, config.host, config.port, config.database_name
+            "postgres://{}:{}@{}:{}/{}{}",
+            config.user, config.password, config.host, config.port, config.database_name, ssl_parameter
         );
         let options = PgConnectOptions::from_str(&database_url)
             .unwrap()
