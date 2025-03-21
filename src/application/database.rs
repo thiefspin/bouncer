@@ -72,17 +72,15 @@ pub struct Database {
 
 impl Database {
     pub async fn init(config: DatabaseConfig) -> Database {
-        let mut ssl_parameter = "";
-        if config.require_ssl {
-            ssl_parameter = "?sslmode=require";
-        }
         let database_url = format!(
-            "postgres://{}:{}@{}:{}/{}{}",
-            config.user, config.password, config.host, config.port, config.database_name, ssl_parameter
+            "postgres://{}:{}@{}:{}/{}",
+            config.user, config.password, config.host, config.port, config.database_name
         );
+        log::info!("Connecting to database: {}", database_url);
         let options = PgConnectOptions::from_str(&database_url)
             .unwrap()
             .disable_statement_logging()
+            .ssl_mode(sqlx::postgres::PgSslMode::Prefer)
             .log_slow_statements(LevelFilter::Warn, Duration::from_millis(500))
             .clone();
         let pool = match PgPoolOptions::new()

@@ -43,7 +43,8 @@ pub async fn with_postgres_test_container<F>(test: impl Fn(DatabaseConfig) -> F)
         password: PASSWORD.to_string(),
         database_name: DATABASE_NAME.to_string(),
         min_connections: 1,
-        max_connections: 1
+        max_connections: 1,
+        require_ssl: false
     };
     test(config).await;
     pg_container.stop();
