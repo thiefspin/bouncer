@@ -3,3 +3,6 @@ min_connections = 4
 max_connections = 10
 connect_timeout = 5
 idle_timeout = 120
+
+[default]
+address = "0.0.0.0"

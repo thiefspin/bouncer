@@ -16,7 +16,7 @@ pub struct DatabaseConfig {
     pub database_name: String,
     pub min_connections: u32,
     pub max_connections: u32,
-    pub require_ssl: bool
+    pub require_ssl: bool,
 }
 
 impl DatabaseConfig {
@@ -60,7 +60,7 @@ impl DatabaseConfig {
             database_name,
             min_connections,
             max_connections,
-            require_ssl
+            require_ssl,
         }
     }
 }
@@ -78,9 +78,13 @@ impl Database {
         }
         let database_url = format!(
             "postgres://{}:{}@{}:{}/{}{}",
-            config.user, config.password, config.host, config.port, config.database_name, ssl_parameter
+            config.user,
+            config.password,
+            config.host,
+            config.port,
+            config.database_name,
+            ssl_parameter
         );
-        log::info!("Connecting to database: {}", database_url);
         let options = PgConnectOptions::from_str(&database_url)
             .unwrap()
             .disable_statement_logging()
@@ -116,6 +120,7 @@ impl Database {
                 pool
             }
             Err(err) => {
+                error!("{}", err.to_string());
                 error!("🔥 Failed to connect to the database: {:?}", err);
                 std::process::exit(1);
             }

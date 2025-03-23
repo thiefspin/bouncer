@@ -18,11 +18,11 @@ use crate::controllers::system_controller::SystemController;
 use crate::controllers::user_controller::UserController;
 use crate::utils::controller_utils::BaseController;
 
-mod utils;
-mod controllers;
 mod application;
-mod users;
 mod auth;
+mod controllers;
+mod users;
+mod utils;
 
 #[cfg(test)]
 mod tests;
