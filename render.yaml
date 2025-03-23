@@ -2,7 +2,14 @@ services:
   - type: web
     name: bouncer
     env: rust
-    buildCommand: cargo build --release
+    buildCommand: |
+      for i in 1 2 3; do
+        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash && \
+        cargo binstall cargo-chef --no-confirm && \
+        cargo chef prepare && \
+        cargo chef cook --release && \
+        cargo build --release && break || sleep 10;
+      done
     startCommand: ./target/release/bouncer
     envVars:
       - key: ROCKET_ADDRESS
@@ -15,4 +22,8 @@ services:
       # Add your database URL if you're using one
       - key: DATABASE_URL
         sync: false # This means you'll set it manually in Render dashboard
+      - key: CARGO_NET_GIT_FETCH_WITH_CLI
+        value: "true"
+      - key: CARGO_REGISTRIES_CRATES_IO_PROTOCOL
+        value: "sparse"
     autoDeploy: true 
